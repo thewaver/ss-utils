@@ -1,16 +1,15 @@
 {
     "name": "@thewaver/ss-utils",
     "type": "module",
-    "version": "0.0.2",
-    "main": "./dist/index.cjs.js",
-    "module": "./dist/index.esm.js",
+    "version": "0.0.3",
+    "main": "./dist/index.js",
     "types": "./dist/index.d.ts",
     "files": [
         "dist"
     ],
     "license": "MIT",
     "scripts": {
-        "build": "tsup src/index.ts --format cjs,esm --dts --clean",
+        "build": "tsup src/index.ts --format esm --dts --clean",
         "dev": "tsup --watch",
         "format": "prettier --write ."
     },
