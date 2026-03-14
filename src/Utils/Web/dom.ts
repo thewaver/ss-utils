@@ -16,4 +16,20 @@ export namespace DOMUtils {
             height: rect.height,
         };
     };
+
+    export const scaleDOMRect = (rect: DOMRect | undefined, scale: number): DOMRect | undefined => {
+        if (!rect) return rect;
+
+        return {
+            ...rect,
+            x: rect.x * scale,
+            y: rect.y * scale,
+            bottom: rect.bottom * scale,
+            left: rect.left * scale,
+            right: rect.right * scale,
+            top: rect.top * scale,
+            width: rect.width * scale,
+            height: rect.height * scale,
+        };
+    };
 }
