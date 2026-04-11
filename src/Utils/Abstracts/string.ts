@@ -1,5 +1,8 @@
-export namespace StreingUtils {
-    export const applyTextTransform = (text: string, transform?: "capitalize" | "lowercase" | "uppercase"): string => {
+export namespace StringUtils {
+    export const applyTextTransform = (
+        text: string,
+        transform?: "capitalize" | "lowercase" | "uppercase" | (string & {}),
+    ): string => {
         switch (transform) {
             case "uppercase":
                 return text.toUpperCase();

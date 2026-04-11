@@ -1,7 +1,7 @@
 import { Point2d } from "./point";
 
 export namespace PolygonUtils {
-    export const pointsSVGString = (pts: Point2d[]) => pts.map((p) => `${p.x},${p.y}`).join(" ");
+    export const pointsToSVGString = (pts: Point2d[]) => pts.map((p) => `${p.x},${p.y}`).join(" ");
 
     export const getEdgeNormal = (p1: Point2d, p2: Point2d) => {
         const dx = p2.x - p1.x;
