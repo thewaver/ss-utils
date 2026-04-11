@@ -4,6 +4,8 @@ import {
     addVec2d,
     divVec2d,
     isSameVec2d,
+    maxVec2d,
+    minVec2d,
     mulVec2d,
     stringToVec2d,
     subVec2d,
@@ -17,6 +19,8 @@ export type Size2d = Vec2d<typeof K1, typeof K2>;
 export type Size2dString = Vec2dString<typeof K1, typeof K2>;
 
 export namespace Size2d {
+    export const min = minVec2d(K1, K2);
+    export const max = maxVec2d(K1, K2);
     export const add = addVec2d(K1, K2);
     export const sub = subVec2d(K1, K2);
     export const mul = mulVec2d(K1, K2);

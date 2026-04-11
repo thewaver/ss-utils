@@ -4,6 +4,26 @@ export type Vec2d<A extends string, B extends string> = {
 
 export type Vec2dString<A extends string, B extends string> = `${Uppercase<A>}${number}_${Uppercase<B>}${number}`;
 
+export const minVec2d =
+    <A extends string, B extends string>(k1: A, k2: B) =>
+    (a: Vec2d<A, B>, b: Vec2d<A, B>): Vec2d<A, B> | undefined =>
+        a !== undefined || b !== undefined
+            ? ({
+                  [k1]: Math.min(a[k1], b[k1]),
+                  [k2]: Math.min(a[k2], b[k2]),
+              } as Vec2d<A, B>)
+            : undefined;
+
+export const maxVec2d =
+    <A extends string, B extends string>(k1: A, k2: B) =>
+    (a: Vec2d<A, B>, b: Vec2d<A, B>): Vec2d<A, B> | undefined =>
+        a !== undefined || b !== undefined
+            ? ({
+                  [k1]: Math.max(a[k1], b[k1]),
+                  [k2]: Math.max(a[k2], b[k2]),
+              } as Vec2d<A, B>)
+            : undefined;
+
 export const addVec2d =
     <A extends string, B extends string>(k1: A, k2: B) =>
     (a: Vec2d<A, B>, b: Vec2d<A, B>): Vec2d<A, B> =>
