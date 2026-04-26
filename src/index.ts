@@ -13,5 +13,6 @@ export * from "./Utils/Abstracts/vec2d";
 
 export * from "./Utils/TypeScript/typeUtils";
 
+export * from "./Utils/Web/css";
 export * from "./Utils/Web/dom";
 export * from "./Utils/Web/io";

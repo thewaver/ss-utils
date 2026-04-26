@@ -25,6 +25,12 @@ export namespace StringUtils {
 
     export const omitLineBreaks = (value: string) => value.replace(/[\r\n\f\v\p{Zl}\p{Zp}]/gu, "");
 
+    export const splitByLinebreaks = (s: string) => s.split(/([\r\n\f\v\p{Zl}\p{Zp}]+)/gu);
+
+    export const isWhitespace = (s: string) => /^\s+$/.test(s);
+
+    export const isClosingPunctuation = (s: string) => /^[\p{Pe}\p{Pf}\p{Po}\p{S}]*$/u.test(s) && !/^\p{Pi}+$/u.test(s);
+
     export const omitControlChars = (value: string) => value.replace(/[\p{Cc}\p{Zl}\p{Zp}]/gu, "");
 
     export const replaceTabs = (text: string) =>
@@ -32,4 +38,35 @@ export namespace StringUtils {
             .replace(/\v/g, "")
             .replace(/(?<= )\t|\t(?= )/g, "")
             .replace(/\t/g, " ");
+
+    export const intlSegmentsToStrings = (segments: Intl.Segments): string[] => Array.from(segments, (s) => s.segment);
+
+    export const intlSegmentsArrayToStrings = (segmentsArr: Intl.Segments[]): string[] =>
+        segmentsArr.flatMap((segments) => intlSegmentsToStrings(segments));
+
+    export const mergePunctuation = (tokens: string[]) => {
+        const result: string[] = [];
+
+        let shouldAttachToLast = false;
+
+        for (let i = 0; i < tokens.length; i++) {
+            const token = tokens[i];
+
+            if (isClosingPunctuation(token)) {
+                if (!result.length || !shouldAttachToLast) {
+                    result.push(token);
+                } else {
+                    result[result.length - 1] += token;
+                }
+
+                shouldAttachToLast = true;
+            } else {
+                result.push(token);
+
+                shouldAttachToLast = !isWhitespace(token);
+            }
+        }
+
+        return result;
+    };
 }
