@@ -1,5 +1,27 @@
 export namespace CssStyleConst {
-    export const TEXT_METRICS_KEYS = [
+    export const INHERITED_CSS_KEYS = [
+        "color",
+        "cursor",
+        "direction",
+        "font-variant",
+        "letter-spacing",
+        "list-style-image",
+        "list-style-position",
+        "list-style-type",
+        "quotes",
+        "tab-size",
+        "text-align",
+        "text-combine-upright",
+        "text-indent",
+        "text-orientation",
+        "text-shadow",
+        "visibility",
+        "white-space",
+        "word-spacing",
+        "writing-mode",
+    ] as const;
+
+    export const CSS_KEYS_USED_TO_MEASURE_TEXT = [
         "font-family",
         "font-size",
         "font-style",
@@ -10,7 +32,7 @@ export namespace CssStyleConst {
         "word-spacing",
     ] as const;
 
-    export const TEXT_RENDERING_KEYS = [
+    export const CSS_KEYS_USED_TO_RENDER_TEXT = [
         "background",
         "background-attachment",
         "background-blend-mode",
@@ -154,29 +176,7 @@ export namespace CssStyleConst {
         "writing-mode",
     ] as const;
 
-    export const INHERITED_CSS_KEYS = [
-        "color",
-        "cursor",
-        "direction",
-        "font-variant",
-        "letter-spacing",
-        "list-style-image",
-        "list-style-position",
-        "list-style-type",
-        "quotes",
-        "tab-size",
-        "text-align",
-        "text-combine-upright",
-        "text-indent",
-        "text-orientation",
-        "text-shadow",
-        "visibility",
-        "white-space",
-        "word-spacing",
-        "writing-mode",
-    ] as const;
-
-    export const INLINE_EXCLUDED_CSS_KEYS = [
+    export const CSS_KEYS_EXCLUDED_FOR_DISPLAY_INLINE = [
         "align-content",
         "align-items",
         "align-self",
@@ -245,7 +245,7 @@ export namespace CssStyleConst {
         "z-index",
     ] as const;
 
-    export const CANVAS_TEXT_METRICS_EXCLUDED_CSS_KEYS = [
+    export const CSS_KEYS_EXCLUDED_FOR_CANVAS_TEXT_MEASURING = [
         "font-feature-settings",
         "font-language-override",
         "font-variant",
@@ -255,10 +255,6 @@ export namespace CssStyleConst {
         "font-variant-ligatures",
         "font-variant-numeric",
         "font-variant-position",
-        "hyphens",
-        "line-break",
-        "line-height",
-        "overflow-wrap",
         "tab-size",
         "text-autospace",
         "text-combine-upright",
@@ -268,36 +264,40 @@ export namespace CssStyleConst {
         "text-rendering",
         "text-spacing-trim",
         "text-transform",
-        "white-space",
-        "word-break",
-        "writing-mode",
     ] as const;
 }
 
 export namespace CssStyleUtils {
-    const TEXT_METRICS_KEY_SET = new Set(CssStyleConst.TEXT_METRICS_KEYS);
-    const TEXT_RENDERING_KEY_SET = new Set(CssStyleConst.TEXT_RENDERING_KEYS);
-    const INHERITED_CSS_KEY_SET = new Set(CssStyleConst.INHERITED_CSS_KEYS);
-    const INLINE_EXCLUDED_CSS_KEY_SET = new Set(CssStyleConst.INLINE_EXCLUDED_CSS_KEYS);
-    const CANVAS_TEXT_METRICS_EXCLUDED_CSS_KEY_SET = new Set(CssStyleConst.CANVAS_TEXT_METRICS_EXCLUDED_CSS_KEYS);
-
-    export const isTextMetricsKey = (key: string): key is (typeof CssStyleConst.TEXT_METRICS_KEYS)[number] =>
-        TEXT_METRICS_KEY_SET.has(key as any);
-
-    export const isTextRenderingKey = (key: string): key is (typeof CssStyleConst.TEXT_RENDERING_KEYS)[number] =>
-        TEXT_RENDERING_KEY_SET.has(key as any);
+    const INHERITED_CSS_KEYS_SET = new Set(CssStyleConst.INHERITED_CSS_KEYS);
+    const CSS_KEYS_USED_TO_MEASURE_TEXT_SET = new Set(CssStyleConst.CSS_KEYS_USED_TO_MEASURE_TEXT);
+    const CSS_KEYS_USED_TO_RENDER_TEXT_SET = new Set(CssStyleConst.CSS_KEYS_USED_TO_RENDER_TEXT);
+    const CSS_KEYS_EXCLUDED_FOR_DISPLAY_INLINE_SET = new Set(CssStyleConst.CSS_KEYS_EXCLUDED_FOR_DISPLAY_INLINE);
+    const CSS_KEYS_EXCLUDED_FOR_CANVAS_TEXT_MEASURING_SET = new Set(
+        CssStyleConst.CSS_KEYS_EXCLUDED_FOR_CANVAS_TEXT_MEASURING,
+    );
 
     export const isInheritedCssKey = (key: string): key is (typeof CssStyleConst.INHERITED_CSS_KEYS)[number] =>
-        INHERITED_CSS_KEY_SET.has(key as any);
+        INHERITED_CSS_KEYS_SET.has(key as any);
 
-    export const isInlineExcludedCssKey = (
+    export const isCssKeyUsedToMeasureText = (
         key: string,
-    ): key is (typeof CssStyleConst.INLINE_EXCLUDED_CSS_KEYS)[number] => INLINE_EXCLUDED_CSS_KEY_SET.has(key as any);
+    ): key is (typeof CssStyleConst.CSS_KEYS_USED_TO_MEASURE_TEXT)[number] =>
+        CSS_KEYS_USED_TO_MEASURE_TEXT_SET.has(key as any);
 
-    export const isCanvasTextMetricsExcludedCssKey = (
+    export const isCssKeyUsedToRenderText = (
         key: string,
-    ): key is (typeof CssStyleConst.CANVAS_TEXT_METRICS_EXCLUDED_CSS_KEYS)[number] =>
-        CANVAS_TEXT_METRICS_EXCLUDED_CSS_KEY_SET.has(key as any);
+    ): key is (typeof CssStyleConst.CSS_KEYS_USED_TO_RENDER_TEXT)[number] =>
+        CSS_KEYS_USED_TO_RENDER_TEXT_SET.has(key as any);
+
+    export const isCssKeyEexcludedForDisplayInline = (
+        key: string,
+    ): key is (typeof CssStyleConst.CSS_KEYS_EXCLUDED_FOR_DISPLAY_INLINE)[number] =>
+        CSS_KEYS_EXCLUDED_FOR_DISPLAY_INLINE_SET.has(key as any);
+
+    export const isCssKeyExcludedForCanvasTextMeasuring = (
+        key: string,
+    ): key is (typeof CssStyleConst.CSS_KEYS_EXCLUDED_FOR_CANVAS_TEXT_MEASURING)[number] =>
+        CSS_KEYS_EXCLUDED_FOR_CANVAS_TEXT_MEASURING_SET.has(key as any);
 
     export const isBlockLike = (display?: string) =>
         display === "block" ||
