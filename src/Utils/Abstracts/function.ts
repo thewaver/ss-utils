@@ -1,4 +1,4 @@
-export namespace FunctioUtils {
+export namespace FunctionUtils {
     export const noop = () => {};
 
     export const noopAsync = async () => {};

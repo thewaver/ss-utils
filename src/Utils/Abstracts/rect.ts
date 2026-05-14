@@ -1,12 +1,25 @@
 import { Point2d } from "./point";
 import { Size2d } from "./size";
+import { Vec4d, Vec4dString } from "./vec4d";
 
-export type Rect = Point2d & Size2d;
+const K1 = "x";
+const K2 = "y";
+const K3 = "width";
+const K4 = "height";
+
+export type Rect = Vec4d<typeof K1, typeof K2, typeof K3, typeof K4>;
+export type RectString = Vec4dString<typeof K1, typeof K2, typeof K3, typeof K4>;
 
 export namespace Rect {
-    export const isSame = (a?: Rect, b?: Rect): boolean =>
-        !!a && !!b && a.x === b.x && a.y === b.y && a.width === b.width && a.height === b.height;
+    export const isSame = Vec4d.isSame(K1, K2, K3, K4);
+    export const toString = Vec4d.toString(K1, K2, K3, K4);
+}
 
+export namespace RectString {
+    export const fromString = Vec4d.fromString(K1, K2, K3, K4);
+}
+
+export namespace RectUtils {
     export const fit = (fitThis: Size2d, intoThis: Size2d): Rect & { scale: number } => {
         const scale = Math.min(intoThis.width / fitThis.width, intoThis.height / fitThis.height);
         const width = fitThis.width * scale;
@@ -14,41 +27,51 @@ export namespace Rect {
         const x = (intoThis.width - width) * 0.5;
         const y = (intoThis.height - height) * 0.5;
 
-        return { width, height, x, y, scale };
+        return { x, y, width, height, scale };
     };
 
-    export const getNormalizedBoundaries = (start: Point2d, end: Point2d) => ({
+    export const getNormalizedBounds = (start: Point2d, end: Point2d) => ({
         minX: Math.min(start.x, end.x),
         maxX: Math.max(start.x, end.x),
         minY: Math.min(start.y, end.y),
         maxY: Math.max(start.y, end.y),
     });
 
-    export const hasAreaOverlap = (start1: Point2d, end1: Point2d, start2: Point2d, end2: Point2d): boolean =>
-        start1.x <= end2.x && end1.x >= start2.x && start1.y <= end2.y && end1.y >= start2.y;
+    export const isPointInsideRect = (point: Point2d, rect: Rect): boolean => {
+        const right = rect.x + rect.width;
+        const bottom = rect.y + rect.height;
 
-    export const hasAnyCornerInside = (start1: Point2d, end1: Point2d, start2: Point2d, end2: Point2d): boolean => {
-        const corners1 = [
-            { x: start1.x, y: start1.y },
-            { x: start1.x, y: end1.y },
-            { x: end1.x, y: end1.y },
-            { x: end1.x, y: start1.y },
-        ];
+        return point.x >= rect.x && point.x <= right && point.y >= rect.y && point.y <= bottom;
+    };
 
-        for (const corner of corners1)
-            if (corner.x >= start2.x && corner.x <= end2.x && corner.y >= start2.y && corner.y <= end2.y) return true;
+    export const hasAreaOverlap = (a?: Rect, b?: Rect): boolean => {
+        if (!a || !b) return false;
 
-        // check twice to account for points
-        const corners2 = [
-            { x: start2.x, y: start2.y },
-            { x: start2.x, y: end2.y },
-            { x: end2.x, y: end2.y },
-            { x: end2.x, y: start2.y },
-        ];
+        const aRight = a.x + a.width;
+        const aBottom = a.y + a.height;
+        const bRight = b.x + b.width;
+        const bBottom = b.y + b.height;
 
-        for (const corner of corners2)
-            if (corner.x >= start1.x && corner.x <= end1.x && corner.y >= start1.y && corner.y <= end1.y) return true;
+        return a.x <= bRight && aRight >= b.x && a.y <= bBottom && aBottom >= b.y;
+    };
 
-        return false;
+    export const hasAnyCornerInside = (a?: Rect, b?: Rect): boolean => {
+        if (!a || !b) return false;
+
+        const aRight = a.x + a.width;
+        const aBottom = a.y + a.height;
+        const bRight = b.x + b.width;
+        const bBottom = b.y + b.height;
+
+        return (
+            isPointInsideRect({ x: a.x, y: a.y }, b) ||
+            isPointInsideRect({ x: a.x, y: aBottom }, b) ||
+            isPointInsideRect({ x: aRight, y: aBottom }, b) ||
+            isPointInsideRect({ x: aRight, y: a.y }, b) ||
+            isPointInsideRect({ x: b.x, y: b.y }, a) ||
+            isPointInsideRect({ x: b.x, y: bBottom }, a) ||
+            isPointInsideRect({ x: bRight, y: bBottom }, a) ||
+            isPointInsideRect({ x: bRight, y: b.y }, a)
+        );
     };
 }

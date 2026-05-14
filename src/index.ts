@@ -1,4 +1,5 @@
 export * from "./Utils/Abstracts/bitwise";
+export * from "./Utils/Abstracts/bounds";
 export * from "./Utils/Abstracts/count";
 export * from "./Utils/Abstracts/dir";
 export * from "./Utils/Abstracts/function";

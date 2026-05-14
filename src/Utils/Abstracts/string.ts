@@ -15,7 +15,11 @@ export namespace StringUtils {
         }
     };
 
-    export const camelToKebabCase = (key: string) => key.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`);
+    export const camelToKebabCase = (key: string) =>
+        key
+            .replace(/([A-Z]+)([A-Z][a-z])/g, "$1-$2")
+            .replace(/([a-z0-9])([A-Z])/g, "$1-$2")
+            .toLowerCase();
 
     export const kebabToCamelCase = (key: string) => key.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
 
