@@ -29,7 +29,8 @@ export namespace StringUtils {
 
     export const omitLineBreaks = (value: string) => value.replace(/[\r\n\f\v\p{Zl}\p{Zp}]/gu, "");
 
-    export const splitByLinebreaks = (s: string) => s.split(/([\r\n\f\v\p{Zl}\p{Zp}]+)/gu);
+    export const splitByLinebreaks = (s: string) =>
+        s.match(/\r\n|[\r\n\f\v\p{Zl}\p{Zp}]|[^\r\n\f\v\p{Zl}\p{Zp}]+/gu) ?? [];
 
     export const isWhitespace = (s: string) => /^\s+$/.test(s);
 
