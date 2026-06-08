@@ -22,4 +22,17 @@ export namespace MathUtils {
 
         return Number(num + "e" + -decimalPlaces);
     };
+
+    export const getIntermediateValues = (from: number, to: number, stepCount: number) => {
+        if (stepCount < 3) return [from, to];
+
+        const stepSize = Math.abs(to - from) / (stepCount - 1);
+        const values = Array.from({ length: stepCount - 1 }, (_, index) =>
+            Math.round(from < to ? from + stepSize * index : from - stepSize * index),
+        );
+
+        values.push(to);
+
+        return values;
+    };
 }

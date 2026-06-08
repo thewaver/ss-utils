@@ -98,4 +98,18 @@ export namespace ObjectUtils {
 
         return allKeys[currentIdx + 1];
     };
+
+    type ZipValue<T> = T extends readonly (infer U)[] ? U : T;
+
+    type ZipTuple<T extends readonly unknown[]> = {
+        [K in keyof T]: ZipValue<T[K]>;
+    };
+
+    export const zipArray = <T extends readonly unknown[]>(...values: T) => {
+        const lengths = values.filter(Array.isArray).map((v) => v.length);
+        const length = lengths.length ? Math.min(...lengths) : 1;
+        const zipped = Array.from({ length }, (_, i) => values.map((v) => (Array.isArray(v) ? v[i] : v)));
+
+        return zipped as ZipTuple<T>[];
+    };
 }
