@@ -1,4 +1,6 @@
-export namespace CssStyleConst {
+import { CSSAnimationKey } from "./CSS.types";
+
+export namespace CssConst {
     export const INHERITED_CSS_KEYS = [
         "color",
         "cursor",
@@ -265,44 +267,22 @@ export namespace CssStyleConst {
         "text-spacing-trim",
         "text-transform",
     ] as const;
-}
 
-export namespace CssStyleUtils {
-    const INHERITED_CSS_KEYS_SET = new Set(CssStyleConst.INHERITED_CSS_KEYS);
-    const CSS_KEYS_USED_TO_MEASURE_TEXT_SET = new Set(CssStyleConst.CSS_KEYS_USED_TO_MEASURE_TEXT);
-    const CSS_KEYS_USED_TO_RENDER_TEXT_SET = new Set(CssStyleConst.CSS_KEYS_USED_TO_RENDER_TEXT);
-    const CSS_KEYS_EXCLUDED_FOR_DISPLAY_INLINE_SET = new Set(CssStyleConst.CSS_KEYS_EXCLUDED_FOR_DISPLAY_INLINE);
-    const CSS_KEYS_EXCLUDED_FOR_CANVAS_TEXT_MEASURING_SET = new Set(
-        CssStyleConst.CSS_KEYS_EXCLUDED_FOR_CANVAS_TEXT_MEASURING,
-    );
-
-    export const isInheritedCssKey = (key: string): key is (typeof CssStyleConst.INHERITED_CSS_KEYS)[number] =>
-        INHERITED_CSS_KEYS_SET.has(key as any);
-
-    export const isCssKeyUsedToMeasureText = (
-        key: string,
-    ): key is (typeof CssStyleConst.CSS_KEYS_USED_TO_MEASURE_TEXT)[number] =>
-        CSS_KEYS_USED_TO_MEASURE_TEXT_SET.has(key as any);
-
-    export const isCssKeyUsedToRenderText = (
-        key: string,
-    ): key is (typeof CssStyleConst.CSS_KEYS_USED_TO_RENDER_TEXT)[number] =>
-        CSS_KEYS_USED_TO_RENDER_TEXT_SET.has(key as any);
-
-    export const isCssKeyEexcludedForDisplayInline = (
-        key: string,
-    ): key is (typeof CssStyleConst.CSS_KEYS_EXCLUDED_FOR_DISPLAY_INLINE)[number] =>
-        CSS_KEYS_EXCLUDED_FOR_DISPLAY_INLINE_SET.has(key as any);
-
-    export const isCssKeyExcludedForCanvasTextMeasuring = (
-        key: string,
-    ): key is (typeof CssStyleConst.CSS_KEYS_EXCLUDED_FOR_CANVAS_TEXT_MEASURING)[number] =>
-        CSS_KEYS_EXCLUDED_FOR_CANVAS_TEXT_MEASURING_SET.has(key as any);
-
-    export const isBlockLike = (display?: string) =>
-        display === "block" ||
-        display === "flex" ||
-        display === "grid" ||
-        display === "table" ||
-        display === "list-item";
+    export const ANIMATION_UNITS: Record<CSSAnimationKey, string> = {
+        "rotate": "deg",
+        "scaleX": "%",
+        "scaleY": "%",
+        "skewX": "deg",
+        "skewY": "deg",
+        "translateX": "%",
+        "translateY": "%",
+        "blur": "px",
+        "brightness": "%",
+        "contrast": "%",
+        "grayscale": "%",
+        "hue-rotate": "deg",
+        "invert": "%",
+        "opacity": "%",
+        "saturate": "%",
+    } as const;
 }

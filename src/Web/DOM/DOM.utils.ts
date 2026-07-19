@@ -1,4 +1,4 @@
-import { Point2d } from "../Abstracts/point";
+import { Point2d } from "../../Abstracts/point";
 
 export namespace DOMUtils {
     export const offsetDOMRect = (rect: DOMRect | undefined, offset: Point2d | undefined): DOMRect | undefined => {

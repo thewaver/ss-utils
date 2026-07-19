@@ -1,3 +1,5 @@
+import { Size2d } from "./size";
+
 export namespace MathUtils {
     export const isEven = (value: number) => (value & 1) === 0;
 
@@ -23,6 +25,16 @@ export namespace MathUtils {
         return Number(num + "e" + -decimalPlaces);
     };
 
+    export const reverseBits = (n: number, bits: number) => {
+        let r = 0;
+
+        for (let i = 0; i < bits; i++) {
+            r = (r << 1) | ((n >> i) & 1);
+        }
+
+        return r;
+    };
+
     export const getIntermediateValues = (from: number, to: number, stepCount: number) => {
         if (stepCount < 3) return [from, to];
 
@@ -34,5 +46,18 @@ export namespace MathUtils {
         values.push(to);
 
         return values;
+    };
+
+    export const unwarpAngle = (angle: number, size: Size2d): number => {
+        if (size.width === 0 || size.height === 0) return angle;
+
+        const radians = angle * (Math.PI / 180);
+        const visualX = Math.cos(radians);
+        const visualY = Math.sin(radians);
+        const boxX = visualX / size.height;
+        const boxY = visualY / size.width;
+        const unwarpedRadians = Math.atan2(boxY, boxX);
+
+        return unwarpedRadians * (180 / Math.PI);
     };
 }

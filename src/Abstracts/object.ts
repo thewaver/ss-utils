@@ -99,6 +99,17 @@ export namespace ObjectUtils {
         return allKeys[currentIdx + 1];
     };
 
+    export const getPrevArrayIndex = (currentIndex: number, length: number) =>
+        currentIndex > 0 ? currentIndex - 1 : length - 1;
+
+    export const getNextArrayIndex = (currentIndex: number, length: number) =>
+        currentIndex < length - 1 ? currentIndex + 1 : 0;
+
+    export const padArray = <T>(arr: T[] | undefined, defaultVal: T, count: number): T[] => {
+        if (!arr || !arr.length) return Array(count).fill(defaultVal);
+        return Array.from({ length: count }, (_, i) => (i < arr.length ? arr[i] : arr[arr.length - 1]));
+    };
+
     type ZipValue<T> = T extends readonly (infer U)[] ? U : T;
 
     type ZipTuple<T extends readonly unknown[]> = {
