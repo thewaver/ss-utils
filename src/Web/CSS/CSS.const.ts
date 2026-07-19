@@ -1,6 +1,6 @@
 import { CSSAnimationKey } from "./CSS.types";
 
-export namespace CssConst {
+export namespace CSSConst {
     export const INHERITED_CSS_KEYS = [
         "color",
         "cursor",

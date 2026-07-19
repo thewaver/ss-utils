@@ -2,9 +2,9 @@ import { deepEqual } from "fast-equals";
 
 import { EMPTY_ARRAY } from "../../../../Abstracts/object";
 import { StringUtils } from "../../../../Abstracts/string";
-import { CssUtils } from "../../../CSS/CSS.utils";
+import { CSSUtils } from "../../../CSS/CSS.utils";
 import type { TextMetricsStyle, TextNonMetricStyle } from "../Metrics/JSXTextMetrics.types";
-import { TextUtils } from "../Metrics/JSXTextMetrics.utils";
+import { JSXTextMetrics } from "../Metrics/JSXTextMetrics.utils";
 
 type SegmentType = "text" | "linebreak" | "atomic";
 
@@ -62,16 +62,16 @@ const splitComputedStyle = (style: CSSStyleDeclaration, parentStyle?: CSSStyleDe
 
         const cssKey = StringUtils.camelToKebabCase(key);
 
-        if (CssUtils.isCssKeyUsedToMeasureText(cssKey)) {
+        if (CSSUtils.isCssKeyUsedToMeasureText(cssKey)) {
             metrics[cssKey] = value;
         } else if (
-            CssUtils.isCssKeyUsedToRenderText(cssKey) &&
-            !CssUtils.isCssKeyEexcludedForDisplayInline(cssKey) &&
-            !CssUtils.isCssKeyExcludedForCanvasTextMeasuring(cssKey)
+            CSSUtils.isCssKeyUsedToRenderText(cssKey) &&
+            !CSSUtils.isCssKeyEexcludedForDisplayInline(cssKey) &&
+            !CSSUtils.isCssKeyExcludedForCanvasTextMeasuring(cssKey)
         ) {
             const parentValue = parentStyle?.[key as keyof CSSStyleDeclaration];
 
-            if (parentValue !== value || !CssUtils.isInheritedCssKey(key)) {
+            if (parentValue !== value || !CSSUtils.isInheritedCssKey(key)) {
                 nonMetrics[cssKey as keyof TextNonMetricStyle] = value;
             }
         }
@@ -139,7 +139,7 @@ export namespace JSXTextParser {
             }
 
             const computed = getComputedStyle(element);
-            const isBlockLike = CssUtils.isBlockLike(computed.display);
+            const isBlockLike = CSSUtils.isBlockLike(computed.display);
 
             if (element.childNodes.length === 0 && computed.display !== "contents") {
                 tokens.push({
@@ -285,7 +285,7 @@ export namespace JSXTextParser {
                             ? texts.map((t) => StringUtils.applyTextTransform(t, metrics["text-transform"]))
                             : texts;
 
-                    const widths = TextUtils.measureTextWidths(transformedTexts, metrics);
+                    const widths = JSXTextMetrics.measureTextWidths(transformedTexts, metrics);
 
                     for (let idx = 0; idx < transformedTexts.length; idx++) {
                         addToken({ ...segment[0], text: texts[idx] }, widths[idx]);

@@ -1,36 +1,36 @@
-import { CssConst } from "./CSS.const";
+import { CSSConst } from "./CSS.const";
 import { CSSBorderRadius, CSSBorderWidth, CSSCornerShape, CSSMargin, CSSPadding } from "./CSS.types";
 
-export namespace CssUtils {
-    const INHERITED_CSS_KEYS_SET = new Set(CssConst.INHERITED_CSS_KEYS);
-    const CSS_KEYS_USED_TO_MEASURE_TEXT_SET = new Set(CssConst.CSS_KEYS_USED_TO_MEASURE_TEXT);
-    const CSS_KEYS_USED_TO_RENDER_TEXT_SET = new Set(CssConst.CSS_KEYS_USED_TO_RENDER_TEXT);
-    const CSS_KEYS_EXCLUDED_FOR_DISPLAY_INLINE_SET = new Set(CssConst.CSS_KEYS_EXCLUDED_FOR_DISPLAY_INLINE);
+export namespace CSSUtils {
+    const INHERITED_CSS_KEYS_SET = new Set(CSSConst.INHERITED_CSS_KEYS);
+    const CSS_KEYS_USED_TO_MEASURE_TEXT_SET = new Set(CSSConst.CSS_KEYS_USED_TO_MEASURE_TEXT);
+    const CSS_KEYS_USED_TO_RENDER_TEXT_SET = new Set(CSSConst.CSS_KEYS_USED_TO_RENDER_TEXT);
+    const CSS_KEYS_EXCLUDED_FOR_DISPLAY_INLINE_SET = new Set(CSSConst.CSS_KEYS_EXCLUDED_FOR_DISPLAY_INLINE);
     const CSS_KEYS_EXCLUDED_FOR_CANVAS_TEXT_MEASURING_SET = new Set(
-        CssConst.CSS_KEYS_EXCLUDED_FOR_CANVAS_TEXT_MEASURING,
+        CSSConst.CSS_KEYS_EXCLUDED_FOR_CANVAS_TEXT_MEASURING,
     );
 
-    export const isInheritedCssKey = (key: string): key is (typeof CssConst.INHERITED_CSS_KEYS)[number] =>
+    export const isInheritedCssKey = (key: string): key is (typeof CSSConst.INHERITED_CSS_KEYS)[number] =>
         INHERITED_CSS_KEYS_SET.has(key as any);
 
     export const isCssKeyUsedToMeasureText = (
         key: string,
-    ): key is (typeof CssConst.CSS_KEYS_USED_TO_MEASURE_TEXT)[number] =>
+    ): key is (typeof CSSConst.CSS_KEYS_USED_TO_MEASURE_TEXT)[number] =>
         CSS_KEYS_USED_TO_MEASURE_TEXT_SET.has(key as any);
 
     export const isCssKeyUsedToRenderText = (
         key: string,
-    ): key is (typeof CssConst.CSS_KEYS_USED_TO_RENDER_TEXT)[number] =>
+    ): key is (typeof CSSConst.CSS_KEYS_USED_TO_RENDER_TEXT)[number] =>
         CSS_KEYS_USED_TO_RENDER_TEXT_SET.has(key as any);
 
     export const isCssKeyEexcludedForDisplayInline = (
         key: string,
-    ): key is (typeof CssConst.CSS_KEYS_EXCLUDED_FOR_DISPLAY_INLINE)[number] =>
+    ): key is (typeof CSSConst.CSS_KEYS_EXCLUDED_FOR_DISPLAY_INLINE)[number] =>
         CSS_KEYS_EXCLUDED_FOR_DISPLAY_INLINE_SET.has(key as any);
 
     export const isCssKeyExcludedForCanvasTextMeasuring = (
         key: string,
-    ): key is (typeof CssConst.CSS_KEYS_EXCLUDED_FOR_CANVAS_TEXT_MEASURING)[number] =>
+    ): key is (typeof CSSConst.CSS_KEYS_EXCLUDED_FOR_CANVAS_TEXT_MEASURING)[number] =>
         CSS_KEYS_EXCLUDED_FOR_CANVAS_TEXT_MEASURING_SET.has(key as any);
 
     export const isBlockLike = (display?: string) =>

@@ -2,7 +2,7 @@ import { Size2d } from "../../../../Abstracts/size";
 import { StringUtils } from "../../../../Abstracts/string";
 import type { TextMetricValue, TextMetricsStyle } from "./JSXTextMetrics.types";
 
-export namespace TextUtils {
+export namespace JSXTextMetrics {
     export const parseTextMetric = (value: TextMetricValue | undefined, fallback: number = 0) => {
         if (!value) return fallback;
 
