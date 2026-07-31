@@ -44,7 +44,11 @@ export namespace ObjectUtils {
         return getRandomArrayValues(entries, count);
     };
 
-    export const mapifyArray = <T extends object, TK extends keyof T, RK extends T[TK] extends string ? T[TK] : never>(
+    export const mapifyArray = <
+        T extends object,
+        TK extends keyof T,
+        RK extends (T[TK] extends string ? T[TK] : never),
+    >(
         arr: Array<T>,
         key: TK,
     ): Record<RK, T> => {
@@ -110,16 +114,28 @@ export namespace ObjectUtils {
         return Array.from({ length: count }, (_, i) => (i < arr.length ? arr[i] : arr[arr.length - 1]));
     };
 
-    type ZipValue<T> = T extends readonly (infer U)[] ? U : T;
-
-    type ZipTuple<T extends readonly unknown[]> = {
-        [K in keyof T]: ZipValue<T[K]>;
+    type ZipTuple<T extends readonly unknown[][]> = {
+        [K in keyof T]: T[K][number];
     };
 
-    export const zipArray = <T extends readonly unknown[]>(...values: T) => {
-        const lengths = values.filter(Array.isArray).map((v) => v.length);
-        const length = lengths.length ? Math.min(...lengths) : 1;
-        const zipped = Array.from({ length }, (_, i) => values.map((v) => (Array.isArray(v) ? v[i] : v)));
+    type ZipMethod = "truncate" | "stretch";
+
+    export const zipArray = <T extends readonly unknown[][]>(method: ZipMethod, ...values: T) => {
+        const lengths = values.map((v) => v.length);
+
+        if (!lengths.length) return [];
+
+        const targetLength = method === "stretch" ? Math.max(...lengths) : Math.min(...lengths);
+        const zipped = Array.from({ length: targetLength }, (_, i) =>
+            values.map((v) => {
+                if (method === "stretch") {
+                    const scaledIndex = Math.floor(i * (v.length / targetLength));
+
+                    return v[Math.min(scaledIndex, v.length - 1)];
+                }
+                return v[i];
+            }),
+        );
 
         return zipped as ZipTuple<T>[];
     };
