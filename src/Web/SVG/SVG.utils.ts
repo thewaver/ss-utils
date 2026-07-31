@@ -34,8 +34,19 @@ export namespace SVGUtils {
 
     export const getArcPath = (arcSize: number, rotation: number = 0) => {
         const normalizedArcSize = ((arcSize % 360) + 360) % 360;
-        const startAngle = rotation + 180;
-        const endAngle = startAngle + normalizedArcSize;
+        const leadingAngle = rotation + normalizedArcSize;
+
+        if (arcSize > 0 && normalizedArcSize === 0) {
+            return (
+                `M ${CIRCLE_CENTER.x} ${CIRCLE_CENTER.y} ` +
+                `m 0 ${-CIRCLE_RADIUS} ` +
+                `a ${CIRCLE_RADIUS} ${CIRCLE_RADIUS} 0 1 1 0 ${CIRCLE_RADIUS * 2} ` +
+                `a ${CIRCLE_RADIUS} ${CIRCLE_RADIUS} 0 1 1 0 ${-CIRCLE_RADIUS * 2} Z`
+            );
+        }
+
+        const startAngle = leadingAngle + 180;
+        const endAngle = startAngle - normalizedArcSize;
         const startRad = (startAngle * Math.PI) / 180;
         const endRad = (endAngle * Math.PI) / 180;
 
@@ -51,7 +62,7 @@ export namespace SVGUtils {
 
         const largeArcFlag = normalizedArcSize > 180 ? 1 : 0;
 
-        return `M ${s.x} ${s.y} A ${CIRCLE_RADIUS} ${CIRCLE_RADIUS} 0 ${largeArcFlag} 1 ${e.x} ${e.y}`;
+        return `M ${CIRCLE_CENTER.x} ${CIRCLE_CENTER.y} L ${s.x} ${s.y} A ${CIRCLE_RADIUS} ${CIRCLE_RADIUS} 0 ${largeArcFlag} 0 ${e.x} ${e.y} Z`;
     };
 
     export const getWedgesPath = (
