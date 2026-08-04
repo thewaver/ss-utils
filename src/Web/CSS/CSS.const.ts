@@ -1,6 +1,12 @@
-import { CSSAnimationKey } from "./CSS.types";
+import { CSSAnimationKey } from "./CSS.types.js";
 
 export namespace CSSConst {
+    /**
+     * CSS properties that pass down to child elements on their own.
+     *
+     * A child already gets these from its parent, so copying them onto it explicitly is
+     * redundant.
+     */
     export const INHERITED_CSS_KEYS = [
         "color",
         "cursor",
@@ -23,6 +29,12 @@ export namespace CSSConst {
         "writing-mode",
     ] as const;
 
+    /**
+     * The only CSS properties that change how wide a piece of text comes out.
+     *
+     * Anything outside this list can be ignored when measuring, which is what keeps
+     * measurement cheap.
+     */
     export const CSS_KEYS_USED_TO_MEASURE_TEXT = [
         "font-family",
         "font-size",
@@ -34,6 +46,10 @@ export namespace CSSConst {
         "word-spacing",
     ] as const;
 
+    /**
+     * CSS properties that change how text looks without changing its size — colour,
+     * background, decoration, shadow and the rest.
+     */
     export const CSS_KEYS_USED_TO_RENDER_TEXT = [
         "background",
         "background-attachment",
@@ -178,6 +194,12 @@ export namespace CSSConst {
         "writing-mode",
     ] as const;
 
+    /**
+     * CSS properties that stop having any effect once an element is displayed inline.
+     *
+     * Inline elements ignore explicit sizes and vertical spacing, so carrying these
+     * across would promise something the browser will not honour.
+     */
     export const CSS_KEYS_EXCLUDED_FOR_DISPLAY_INLINE = [
         "align-content",
         "align-items",
@@ -247,6 +269,12 @@ export namespace CSSConst {
         "z-index",
     ] as const;
 
+    /**
+     * CSS properties a canvas cannot reproduce when measuring text.
+     *
+     * Canvas exposes only a small slice of CSS through its `font` setting, so these are
+     * left out of a measurement rather than being silently ignored.
+     */
     export const CSS_KEYS_EXCLUDED_FOR_CANVAS_TEXT_MEASURING = [
         "font-feature-settings",
         "font-language-override",

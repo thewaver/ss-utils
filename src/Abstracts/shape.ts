@@ -1,10 +1,11 @@
 import type * as CSS from "csstype";
 
-import { ObjectUtils } from "./object";
-import { Point2d } from "./point";
-import { Size2d } from "./size";
+import { ObjectUtils } from "./object.js";
+import { Point2d } from "./point.js";
+import { Size2d } from "./size.js";
 
 export namespace ShapeConst {
+    /** The built-in shapes {@link getDefaultShapePoints} knows how to build. */
     export const DEFAULT_SHAPES = [
         "triangle-up",
         "triangle-down",
@@ -13,8 +14,17 @@ export namespace ShapeConst {
         "hexagon-pointy-top",
         "hexagon-flat-top",
     ] as const;
+
+    /** One of the built-in shape names. */
     export type DefaultShape = (typeof DEFAULT_SHAPES)[number];
 
+    /**
+     * Corner styles, expressed as the exponent that drives the corner curve.
+     *
+     * The number decides how the corner bulges: large values keep it square, `1` gives
+     * a plain circular round, `0` gives a straight bevel, and negatives scoop the
+     * corner inwards. These match the CSS `corner-shape` keywords of the same names.
+     */
     export const CORNER_SHAPE_LAME_EXPONENTS = {
         square: Infinity,
         squircle: 2,
@@ -24,6 +34,15 @@ export namespace ShapeConst {
         notch: -Infinity,
     };
 
+    /**
+     * Builds the corner points for one of the built-in shapes, stretched to fill a box.
+     *
+     * Points come back clockwise starting from the top, in the box's own coordinates
+     * (so the top-left is `0,0`).
+     *
+     * @param shape Which shape to build.
+     * @param size The box to fill.
+     */
     export const getDefaultShapePoints = (shape: DefaultShape, { width, height }: Size2d): Point2d[] => {
         switch (shape) {
             case "triangle-up":
@@ -85,6 +104,7 @@ export namespace ShapeUtils {
     const CIRCLE_KAPPA = 1;
     const HALF_PI = Math.PI * 0.5;
 
+    /** The outer and inner outlines of a shape, as both SVG path text and raw points. */
     type ShapePaths = {
         innerPath: string;
         innerPoints: Point2d[];
@@ -92,8 +112,38 @@ export namespace ShapeUtils {
         outerPoints: Point2d[];
     };
 
-    export const PATH_CACHE: Record<string, ShapePaths> = {};
+    /**
+     * Every result {@link getPaths} has ever worked out.
+     *
+     * Deliberately unbounded and never evicted. Generating a shape is expensive and
+     * real workloads run to tens of thousands of distinct variations, so any cap large
+     * enough to be safe would not be a cap worth having — and one too small turns the
+     * cache into a treadmill that recomputes the same corners every frame. Call
+     * {@link clearPathCache} at a natural boundary if the memory ever needs reclaiming.
+     */
+    const pathCache = new Map<string, ShapePaths>();
 
+    const writePathCache = (key: string, value: ShapePaths) => {
+        pathCache.set(key, value);
+
+        return value;
+    };
+
+    /**
+     * Throws away everything {@link getPaths} has worked out so far.
+     *
+     * The cache never evicts on its own, so this is the only way to release it — worth
+     * calling when tearing down a screen that generated a great many one-off shapes.
+     */
+    export const clearPathCache = () => pathCache.clear();
+
+    /**
+     * Joins points into a closed SVG path with straight edges.
+     *
+     * @param pts The corners, in order.
+     * @returns Path text for an SVG `d` attribute, or `""` if there are fewer than
+     * three points, since that cannot enclose an area.
+     */
     export const pointsToPath = (pts: Point2d[]) => {
         if (pts.length < 3) return "";
 
@@ -106,6 +156,19 @@ export namespace ShapeUtils {
         return path + "Z";
     };
 
+    /**
+     * Finds the largest upright rectangle that fits fully inside a shape.
+     *
+     * Used to work out where text can safely sit inside a non-rectangular shape. It
+     * searches rather than solving outright: it samples candidate top and bottom edges,
+     * keeps the best, then narrows the search around it a few times.
+     *
+     * Costs roughly 13,000 steps per call, so keep it out of per-frame code — call it
+     * when the shape changes and hold on to the answer.
+     *
+     * @param pts The shape's corners, in order.
+     * @returns The rectangle, or an all-zero one if there are fewer than three points.
+     */
     export const getInnerRect = (pts: Point2d[]) => {
         if (pts.length < 3) return { x: 0, y: 0, width: 0, height: 0 };
 
@@ -209,6 +272,25 @@ export namespace ShapeUtils {
         };
     };
 
+    /**
+     * Works out the raw geometry a shape needs before its corners are drawn.
+     *
+     * This is the groundwork behind {@link getPaths}: it shrinks any corner radii that
+     * would overrun their edge, finds the direction each edge runs in and which way is
+     * "outwards", and offsets the corners to give the outer and inner walls of a thick
+     * outline. Most callers want {@link getPaths} instead.
+     *
+     * @param vertices The shape's corners, in order.
+     * @param edgeThicknesses Outline thickness per edge. Short lists are padded by
+     * repeating the last entry, CSS-shorthand style.
+     * @param joinRadii Corner radius per corner, padded the same way. Radii too large
+     * for their edge are scaled down together so neighbours never overlap.
+     * @param lameExponents Corner style per corner. See
+     * {@link ShapeConst.CORNER_SHAPE_LAME_EXPONENTS}.
+     * @param offset Pushes the whole outline outwards. Negative pulls it in.
+     * @returns The outer and inner walls, the padded inputs, and the per-edge
+     * directions. Fewer than three corners gives a filled-in but empty result.
+     */
     export const setupPaths = (
         vertices: Point2d[],
         edgeThicknesses: number[],
@@ -292,7 +374,10 @@ export namespace ShapeUtils {
             const next = vertices[ObjectUtils.getNextArrayIndex(i, vertexCount)];
             const deltaX = next.x - curr.x;
             const deltaY = next.y - curr.y;
-            const edgeLength = Math.hypot(deltaX, deltaY);
+            // Two corners in the same spot would divide by zero and turn the whole path
+            // into NaN, which renders as nothing at all. Fall back to 1 so only that
+            // corner is wrong and the rest of the shape still draws.
+            const edgeLength = Math.hypot(deltaX, deltaY) || 1;
             const vectorToMidpoint = {
                 x: (curr.x + next.x) * 0.5 - polygonCenter.x,
                 y: (curr.y + next.y) * 0.5 - polygonCenter.y,
@@ -361,16 +446,44 @@ export namespace ShapeUtils {
         return { outer, inner, common, vectors, hasThickness, hasRadii };
     };
 
+    /**
+     * Builds the SVG outlines for a shape with rounded, bevelled or scooped corners and
+     * an optional thick outline.
+     *
+     * Corners are drawn as superellipse curves, the same family of curves CSS
+     * `corner-shape` uses, so a shape here can be made to match a CSS-styled box.
+     * Radii too large for their edge are scaled down rather than overlapping.
+     *
+     * Results are cached forever, since the maths is not cheap and real workloads reuse
+     * the same shapes heavily. Nothing is ever evicted; call {@link clearPathCache} if
+     * the memory needs reclaiming.
+     *
+     * @param vertices The shape's corners, in order.
+     * @param edgeThicknesses Outline thickness per edge. Short lists are padded by
+     * repeating the last entry, CSS-shorthand style. All zeroes means no outline, and
+     * the inner path then matches the outer one.
+     * @param joinRadii Corner radius per corner, padded the same way.
+     * @param lameExponents Corner style per corner. See
+     * {@link ShapeConst.CORNER_SHAPE_LAME_EXPONENTS}.
+     * @param offset Pushes the whole outline outwards. Negative pulls it in.
+     * @returns Path text for the outer and inner outlines plus the points behind them.
+     * Fewer than three corners gives empty strings and empty lists.
+     */
     export const getPaths = (
         vertices: Point2d[],
         edgeThicknesses: number[],
         joinRadii?: number[],
         lameExponents?: number[],
         offset: number = 0,
-    ) => {
-        const cacheKey = JSON.stringify({ vertices, edgeThicknesses, joinRadii, lameExponents, offset });
+    ): ShapePaths => {
+        const vertexCount = vertices.length;
 
-        if (PATH_CACHE[cacheKey]) return PATH_CACHE[cacheKey];
+        if (vertexCount < 3) return { outerPath: "", innerPath: "", outerPoints: [], innerPoints: [] };
+
+        const cacheKey = JSON.stringify({ vertices, edgeThicknesses, joinRadii, lameExponents, offset });
+        const cached = pathCache.get(cacheKey);
+
+        if (cached) return cached;
 
         const generatePolylineCorner = (
             arcStart: Point2d,
@@ -426,10 +539,6 @@ export namespace ShapeUtils {
             return pts;
         };
 
-        const vertexCount = vertices.length;
-
-        if (vertexCount < 3) return { outerPath: "", innerPath: "", outerPoints: [], innerPoints: [] };
-
         const { outer, inner, common, vectors, hasThickness, hasRadii } = setupPaths(
             vertices,
             edgeThicknesses,
@@ -453,7 +562,7 @@ export namespace ShapeUtils {
                 innerPath = `M ${inner.vertices[vertexCount - 1].x.toFixed(3)} ${inner.vertices[vertexCount - 1].y.toFixed(3)} ${innerPathSegments.join(" ")} Z`;
             }
 
-            return { outerPath, innerPath, outerPoints: outer.vertices, innerPoints };
+            return writePathCache(cacheKey, { outerPath, innerPath, outerPoints: outer.vertices, innerPoints });
         }
 
         const { unitTangents, unitNormals, crossChecks } = vectors;
@@ -601,18 +710,29 @@ export namespace ShapeUtils {
             }
         }
 
-        const result = {
+        return writePathCache(cacheKey, {
             outerPath: `${outerPath} Z`,
             innerPath: `${innerPath} Z`,
             outerPoints,
             innerPoints,
-        };
-
-        PATH_CACHE[cacheKey] = result;
-
-        return result;
+        });
     };
 
+    /**
+     * Works out how much padding a rectangle needs to keep its content clear of
+     * rounded corners and a thick outline.
+     *
+     * A rounded corner eats into the box diagonally, so content pushed tight against
+     * the edge would clip. This returns per-side padding that accounts for both the
+     * corner curve and the outline thickness.
+     *
+     * @param edgeThicknesses Outline thickness per side, in CSS order: top, right,
+     * bottom, left. Short lists are padded by repeating the last entry.
+     * @param joinRadii Corner radius per corner, padded the same way.
+     * @param lameExponents Corner style per corner. See
+     * {@link ShapeConst.CORNER_SHAPE_LAME_EXPONENTS}.
+     * @returns CSS padding, ready to spread onto a style object.
+     */
     export const getRectPadding = (
         edgeThicknesses: number[],
         joinRadii?: number[],
@@ -645,8 +765,21 @@ export namespace ShapeUtils {
         };
     };
 
+    /**
+     * Works out padding that keeps content inside the usable middle of a
+     * non-rectangular shape.
+     *
+     * Finds the biggest upright rectangle that fits in the shape via
+     * {@link getInnerRect}, then expresses the gap around it as CSS padding. Inherits
+     * that function's cost, so work it out when the shape changes rather than every
+     * frame.
+     *
+     * @param size The box the shape is drawn in.
+     * @param innerPoints The shape's inner outline, as returned by {@link getPaths}.
+     * @returns CSS padding, ready to spread onto a style object.
+     */
     export const getPolygonPadding = (size: Size2d, innerPoints: Point2d[]): CSS.PropertiesHyphen => {
-        const innerRect = ShapeUtils.getInnerRect(innerPoints);
+        const innerRect = getInnerRect(innerPoints);
 
         return {
             "padding-top": `${innerRect.y}px`,

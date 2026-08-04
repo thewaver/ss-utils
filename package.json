@@ -1,17 +1,47 @@
 {
     "name": "@thewaver/ss-utils",
     "type": "module",
-    "version": "0.0.17",
+    "version": "0.0.18",
+    "description": "Geometry, CSS, SVG and DOM helpers for building shaped UI.",
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js"
+        },
+        "./package.json": "./package.json"
+    },
+    "sideEffects": false,
     "files": [
         "dist"
     ],
     "license": "MIT",
+    "author": "Luís Santos",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/thewaver/ss-utils.git"
+    },
+    "bugs": {
+        "url": "https://github.com/thewaver/ss-utils/issues"
+    },
+    "homepage": "https://github.com/thewaver/ss-utils#readme",
+    "keywords": [
+        "geometry",
+        "polygon",
+        "svg",
+        "css",
+        "shape",
+        "superellipse",
+        "squircle",
+        "text-measurement"
+    ],
     "scripts": {
-        "build": "tsup src/index.ts --format esm --dts --clean",
+        "build": "tsup",
         "dev": "tsup --watch",
-        "format": "prettier --write ."
+        "format": "prettier --write .",
+        "typecheck": "tsc --noEmit",
+        "prepublishOnly": "npm run typecheck && npm run build"
     },
     "dependencies": {
         "csstype": "^3.2.3",

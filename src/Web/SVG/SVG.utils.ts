@@ -1,9 +1,29 @@
-import { Point2d } from "../../Abstracts/point";
-import { Size2d } from "../../Abstracts/size";
+import { Point2d } from "../../Abstracts/point.js";
+import { PolygonUtils } from "../../Abstracts/polygon.js";
+import { Size2d } from "../../Abstracts/size.js";
 
 export namespace SVGUtils {
-    export const pointArrayToString = (points: Point2d[]) => points.map((p) => `${p.x},${p.y}`).join(" ");
+    /**
+     * Formats points for an SVG `points` attribute, as in `"0,0 10,0 10,10"`.
+     *
+     * @param points The corners, in order.
+     */
+    export const pointArrayToString = (points: Point2d[]) => PolygonUtils.pointsToSVGString(points);
 
+    /**
+     * Works out the start and end points for an SVG `linearGradient` running at a given
+     * angle.
+     *
+     * Coordinates come back in the 0–1 range that `objectBoundingBox` gradients use, so
+     * they fit any element without rescaling. `0` degrees runs left to right and angles
+     * increase clockwise.
+     *
+     * @param angle Which way the gradient runs, in degrees. Defaults to `0`.
+     * @param scale Stretches the gradient beyond the element. Values above `1` push the
+     * colour stops outside the visible box, softening the ends.
+     * @param offset Shifts the gradient's centre away from the middle.
+     * @returns The `x1`, `y1`, `x2` and `y2` for the gradient element.
+     */
     export const getLinearCoords = ({
         angle = 0,
         scale = { width: 1, height: 1 },
@@ -32,6 +52,18 @@ export namespace SVGUtils {
     const CIRCLE_CENTER = { x: 0.5, y: 0.5 };
     const CIRCLE_RADIUS = 1;
 
+    /**
+     * Builds a pie-slice path covering part of a circle.
+     *
+     * The slice is drawn around a fixed unit circle, so scale it with a `viewBox` or a
+     * transform rather than by passing a size.
+     *
+     * @param arcSize How much of the circle to cover, in degrees. Values beyond a full
+     * turn wrap round; any positive whole number of turns draws a complete circle
+     * rather than collapsing to nothing.
+     * @param rotation Where the slice starts, in degrees.
+     * @returns Path text for an SVG `d` attribute.
+     */
     export const getArcPath = (arcSize: number, rotation: number = 0) => {
         const normalizedArcSize = ((arcSize % 360) + 360) % 360;
         const leadingAngle = rotation + normalizedArcSize;
@@ -65,6 +97,22 @@ export namespace SVGUtils {
         return `M ${CIRCLE_CENTER.x} ${CIRCLE_CENTER.y} L ${s.x} ${s.y} A ${CIRCLE_RADIUS} ${CIRCLE_RADIUS} 0 ${largeArcFlag} 0 ${e.x} ${e.y} Z`;
     };
 
+    /**
+     * Builds a ring of pie slices radiating from the centre of a circle, like the
+     * blades of a fan or the spokes of a loading spinner.
+     *
+     * The slices are drawn around a fixed unit circle, so scale them with a `viewBox`
+     * or a transform rather than by passing a size.
+     *
+     * @param count How many sectors the circle is divided into. Slices are drawn in
+     * every other sector, so the gaps match the blades.
+     * @param thickness How much of each sector the blade fills, from `0` to `1`. At `0`
+     * nothing is drawn; at `1` or above the result is a solid circle.
+     * @param rotation Where the first blade starts, in degrees.
+     * @param curvature Sweeps the blades into a curve, in radians. `0` keeps them
+     * straight.
+     * @returns Path text for an SVG `d` attribute holding every blade.
+     */
     export const getWedgesPath = (
         count: number,
         thickness: number = 0.5, // 0 - 1
