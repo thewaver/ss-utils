@@ -18,7 +18,11 @@ export namespace StringUtils {
             case "lowercase":
                 return text.toLowerCase();
             case "capitalize":
-                return text.replace(/\b\p{L}/gu, (m) => m.toUpperCase());
+                // Deliberately not `\b`, which is ASCII-only: it sees no boundary before
+                // "état" and one *inside* it, giving "éTat". Matching a letter that has
+                // no letter or digit before it works the same way for ASCII and keeps
+                // accented words intact.
+                return text.replace(/(?<![\p{L}\p{N}])\p{L}/gu, (m) => m.toUpperCase());
             default:
                 return text;
         }

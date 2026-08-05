@@ -70,6 +70,10 @@ export namespace FunctionUtils {
     ): CancellableFunction<A> => {
         let lastCall = 0;
         let timeoutId: ReturnType<typeof setTimeout> | null = null;
+        // The timer is only ever scheduled once per cooling-off period, so the arguments
+        // live out here rather than in the timer's closure. Later calls in the same
+        // period overwrite them, which is what lets the last value through.
+        let pendingArgs: A | null = null;
 
         const wrapped = (...args: A) => {
             const now = Date.now();
@@ -80,13 +84,23 @@ export namespace FunctionUtils {
                     clearTimeout(timeoutId);
                     timeoutId = null;
                 }
+                pendingArgs = null;
                 lastCall = now;
                 fn(...args);
-            } else if (!timeoutId) {
+
+                return;
+            }
+
+            pendingArgs = args;
+
+            if (!timeoutId) {
                 timeoutId = setTimeout(() => {
+                    const argsToRunWith = pendingArgs as A;
+
                     lastCall = Date.now();
                     timeoutId = null;
-                    fn(...args);
+                    pendingArgs = null;
+                    fn(...argsToRunWith);
                 }, remaining);
             }
         };
@@ -96,6 +110,8 @@ export namespace FunctionUtils {
                 clearTimeout(timeoutId);
                 timeoutId = null;
             }
+
+            pendingArgs = null;
         };
 
         return wrapped;

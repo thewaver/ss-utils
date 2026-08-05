@@ -1,0 +1,14 @@
+{
+    // The main tsconfig pins `rootDir` to `src` so the build output mirrors it. Tests
+    // live outside that root, so they get their own config that widens the root and
+    // never emits.
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "rootDir": ".",
+        "noEmit": true,
+        "declaration": false
+    },
+    // `vitest.config.ts` is left out on purpose: it drags in Vite's own declarations,
+    // which need `@types/node` that this package otherwise has no use for.
+    "include": ["src", "test"]
+}
