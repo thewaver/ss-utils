@@ -32,7 +32,29 @@ export type CSSCornerShape = {
 };
 
 /** The individual transform functions this library can animate one at a time. */
-export const CSS_TRANSFORM_KEYS = ["rotate", "scaleX", "scaleY", "skewX", "skewY", "translateX", "translateY"] as const;
+export const CSS_TRANSFORM_KEYS = [
+    "matrix",
+    "matrix3d",
+    "perspective",
+    "rotate",
+    "rotate3d",
+    "rotateX",
+    "rotateY",
+    "rotateZ",
+    "translate",
+    "translate3d",
+    "translateX",
+    "translateY",
+    "translateZ",
+    "scale",
+    "scale3d",
+    "scaleX",
+    "scaleY",
+    "scaleZ",
+    "skew",
+    "skewX",
+    "skewY",
+] as const;
 
 /** One of {@link CSS_TRANSFORM_KEYS}. */
 export type CSSTransformKey = (typeof CSS_TRANSFORM_KEYS)[number];
@@ -42,11 +64,13 @@ export const CSS_FILTER_KEYS = [
     "blur",
     "brightness",
     "contrast",
+    "drop-shadow",
     "grayscale",
     "hue-rotate",
     "invert",
     "opacity",
     "saturate",
+    "sepia",
 ] as const;
 
 /** One of {@link CSS_FILTER_KEYS}. */

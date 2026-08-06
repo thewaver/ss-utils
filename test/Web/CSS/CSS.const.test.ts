@@ -35,13 +35,18 @@ describe("CSSConst key lists", () => {
 });
 
 describe("CSSConst.ANIMATION_UNITS", () => {
-    it("gives every animatable key a unit", () => {
+    it("gives every animatable key a unit per argument", () => {
         const entries = Object.entries(CSSConst.ANIMATION_UNITS);
 
         expect(entries.length).toBeGreaterThan(0);
 
-        for (const [, unit] of entries) {
-            expect(typeof unit).toBe("string");
+        for (const [, units] of entries) {
+            expect(Array.isArray(units)).toBe(true);
+            expect(units.length).toBeGreaterThan(0);
+
+            for (const unit of units) {
+                expect(typeof unit).toBe("string");
+            }
         }
     });
 });

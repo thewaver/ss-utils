@@ -296,21 +296,46 @@ export namespace CSSConst {
         "text-transform",
     ] as const;
 
-    export const ANIMATION_UNITS: Record<CSSAnimationKey, string> = {
-        "rotate": "deg",
-        "scaleX": "%",
-        "scaleY": "%",
-        "skewX": "deg",
-        "skewY": "deg",
-        "translateX": "%",
-        "translateY": "%",
-        "blur": "px",
-        "brightness": "%",
-        "contrast": "%",
-        "grayscale": "%",
-        "hue-rotate": "deg",
-        "invert": "%",
-        "opacity": "%",
-        "saturate": "%",
+    /**
+     * The unit each argument of an animatable function is written in.
+     *
+     * One entry per argument, in the order the function takes them, so the array length
+     * doubles as the argument count. An empty string means the argument carries no unit
+     * of its own — a bare number, or a colour.
+     */
+    export const ANIMATION_UNITS: Record<CSSAnimationKey, string[]> = {
+        // TRANSFORM
+        "matrix": ["", "", "", "", "", ""],
+        "matrix3d": ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        "perspective": ["px"],
+        "rotate": ["deg"],
+        "rotate3d": ["", "", "", "deg"],
+        "rotateX": ["deg"],
+        "rotateY": ["deg"],
+        "rotateZ": ["deg"],
+        "translate": ["%", "%"],
+        "translate3d": ["%", "%", "px"],
+        "translateX": ["%"],
+        "translateY": ["%"],
+        "translateZ": ["px"],
+        "scale": ["%", "%"],
+        "scale3d": ["%", "%", "%"],
+        "scaleX": ["%"],
+        "scaleY": ["%"],
+        "scaleZ": ["%"],
+        "skew": ["deg", "deg"],
+        "skewX": ["deg"],
+        "skewY": ["deg"],
+        // FILTER
+        "blur": ["px"],
+        "brightness": ["%"],
+        "contrast": ["%"],
+        "drop-shadow": ["px", "px", "px", ""],
+        "grayscale": ["%"],
+        "hue-rotate": ["deg"],
+        "invert": ["%"],
+        "opacity": ["%"],
+        "saturate": ["%"],
+        "sepia": ["%"],
     } as const;
 }

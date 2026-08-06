@@ -1,7 +1,7 @@
 {
     "name": "@thewaver/ss-utils",
     "type": "module",
-    "version": "0.0.18",
+    "version": "0.0.19",
     "description": "Geometry, CSS, SVG and DOM helpers for building shaped UI.",
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",
