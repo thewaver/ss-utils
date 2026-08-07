@@ -1,3 +1,4 @@
+import { Size2d } from "./size.js";
 import { Vec2d, Vec2dString } from "./vec2d.js";
 
 const K1 = "x";
@@ -49,10 +50,21 @@ export namespace Point2dUtils {
      * begin with (a zero direction cannot point anywhere).
      */
     export const getNormal = (p: Point2d): Point2d => {
-        const dist = getDistance(p);
+        const dist = getLength(p);
 
         return dist === 0 ? { x: 0, y: 0 } : { x: p.x / dist, y: p.y / dist };
     };
+
+    /**
+     * Pulls a point back inside a box, leaving it alone if it already fits.
+     *
+     * @param bounds The box to stay within. Its corners are the origin and
+     * `{ x: width, y: height }`.
+     */
+    export const getBoundPoint = (p: Point2d, bounds: Size2d): Point2d => ({
+        x: Math.max(Math.min(p.x, bounds.width), 0),
+        y: Math.max(Math.min(p.y, bounds.height), 0),
+    });
 
     /**
      * Rotates a direction a quarter turn anticlockwise, giving the direction at right
@@ -63,8 +75,45 @@ export namespace Point2dUtils {
      */
     export const getPerpendicular = (p: Point2d): Point2d => ({ x: -p.y, y: p.x });
 
-    /** Measures how far a point sits from the origin. */
-    export const getDistance = (p: Point2d): number => Math.hypot(p.x, p.y);
+    /**
+     * Measures the gap between two points along each axis on its own.
+     *
+     * @returns How far apart they are sideways and up-and-down, never negative. For the
+     * straight-line distance instead, subtract the points and pass that to
+     * {@link getLength}.
+     */
+    export const getDelta = (p1: Point2d, p2: Point2d): Point2d => ({
+        x: Math.abs(p2.x - p1.x),
+        y: Math.abs(p2.y - p1.y),
+    });
+
+    /**
+     * Measures how far a cell sits from the further away of the two grid edges it lies
+     * between, on each axis on its own.
+     *
+     * @param p A cell inside the grid, with both coordinates zero or more.
+     * @param bounds How many cells the grid holds each way, so the last cell sits at
+     * `width - 1` and `height - 1`.
+     * @returns The larger of the two gaps per axis.
+     */
+    export const getFarthestBound = (p: Point2d, bounds: Size2d): Point2d => ({
+        x: Math.max(bounds.width - 1 - p.x, p.x),
+        y: Math.max(bounds.height - 1 - p.y, p.y),
+    });
+
+    /**
+     * Measures how far a cell sits from the nearer of the two grid edges it lies between,
+     * on each axis on its own.
+     *
+     * @param p A cell inside the grid, with both coordinates zero or more.
+     * @param bounds How many cells the grid holds each way, so the last cell sits at
+     * `width - 1` and `height - 1`.
+     * @returns The smaller of the two gaps per axis.
+     */
+    export const getNearestBound = (p: Point2d, bounds: Size2d): Point2d => ({
+        x: Math.min(bounds.width - 1 - p.x, p.x),
+        y: Math.min(bounds.height - 1 - p.y, p.y),
+    });
 
     /**
      * Works out which way a point faces from the origin, in degrees.
@@ -74,6 +123,9 @@ export namespace Point2dUtils {
      * it reports `0`.
      */
     export const getAngle = (p: Point2d): number => radiansToDegrees(Math.atan2(p.y, p.x));
+
+    /** Measures how far a point sits from the origin, in a straight line. */
+    export const getLength = (p: Point2d): number => Math.hypot(p.x, p.y);
 
     /**
      * Converts a distance and a direction into a position.
@@ -92,7 +144,7 @@ export namespace Point2dUtils {
      * @returns The distance from the origin, and the angle in degrees from -180 to 180.
      */
     export const cartesianToPolar = (p: Point2d) => ({
-        radius: getDistance(p),
+        radius: getLength(p),
         angle: getAngle(p),
     });
 

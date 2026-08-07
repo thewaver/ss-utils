@@ -30,7 +30,7 @@ describe("Point2dUtils angle conversions", () => {
 describe("Point2dUtils.getNormal", () => {
     it("shrinks to length 1 while keeping the direction", () => {
         expect(Point2dUtils.getNormal({ x: 3, y: 4 })).toEqual({ x: 0.6, y: 0.8 });
-        expect(Point2dUtils.getDistance(Point2dUtils.getNormal({ x: -7, y: 2 }))).toBeCloseTo(1, 10);
+        expect(Point2dUtils.getLength(Point2dUtils.getNormal({ x: -7, y: 2 }))).toBeCloseTo(1, 10);
     });
 
     it("gives the origin back for a zero direction", () => {
@@ -45,15 +45,27 @@ describe("Point2dUtils.getPerpendicular", () => {
     });
 
     it("leaves the length alone", () => {
-        expect(Point2dUtils.getDistance(Point2dUtils.getPerpendicular({ x: 3, y: 4 }))).toBe(5);
+        expect(Point2dUtils.getLength(Point2dUtils.getPerpendicular({ x: 3, y: 4 }))).toBe(5);
     });
 });
 
-describe("Point2dUtils.getDistance", () => {
+describe("Point2dUtils.getDelta", () => {
+    it("measures the gap along each axis on its own", () => {
+        expect(Point2dUtils.getDelta({ x: 1, y: 2 }, { x: 4, y: 6 })).toEqual({ x: 3, y: 4 });
+        expect(Point2dUtils.getDelta({ x: 0, y: 0 }, { x: 0, y: 0 })).toEqual({ x: 0, y: 0 });
+    });
+
+    it("never reports a negative gap, whichever way round the points come", () => {
+        expect(Point2dUtils.getDelta({ x: 4, y: 6 }, { x: 1, y: 2 })).toEqual({ x: 3, y: 4 });
+        expect(Point2dUtils.getDelta({ x: -3, y: -4 }, { x: 3, y: 4 })).toEqual({ x: 6, y: 8 });
+    });
+});
+
+describe("Point2dUtils.getLength", () => {
     it("measures from the origin", () => {
-        expect(Point2dUtils.getDistance({ x: 3, y: 4 })).toBe(5);
-        expect(Point2dUtils.getDistance({ x: 0, y: 0 })).toBe(0);
-        expect(Point2dUtils.getDistance({ x: -3, y: -4 })).toBe(5);
+        expect(Point2dUtils.getLength({ x: 3, y: 4 })).toBe(5);
+        expect(Point2dUtils.getLength({ x: 0, y: 0 })).toBe(0);
+        expect(Point2dUtils.getLength({ x: -3, y: -4 })).toBe(5);
     });
 });
 
@@ -67,6 +79,60 @@ describe("Point2dUtils.getAngle", () => {
 
     it("reports 0 for the origin, which has no direction", () => {
         expect(Point2dUtils.getAngle({ x: 0, y: 0 })).toBe(0);
+    });
+});
+
+describe("Point2dUtils.getBoundPoint", () => {
+    const bounds = { width: 10, height: 20 };
+
+    it("leaves a point that already fits alone", () => {
+        expect(Point2dUtils.getBoundPoint({ x: 3, y: 4 }, bounds)).toEqual({ x: 3, y: 4 });
+    });
+
+    it("pulls a point past the far corner back in", () => {
+        expect(Point2dUtils.getBoundPoint({ x: 99, y: 99 }, bounds)).toEqual({ x: 10, y: 20 });
+    });
+
+    it("pulls a point past the origin back in", () => {
+        expect(Point2dUtils.getBoundPoint({ x: -5, y: -1 }, bounds)).toEqual({ x: 0, y: 0 });
+    });
+
+    it("clamps each axis on its own", () => {
+        expect(Point2dUtils.getBoundPoint({ x: -5, y: 99 }, bounds)).toEqual({ x: 0, y: 20 });
+    });
+});
+
+describe("Point2dUtils.getFarthestBound", () => {
+    const bounds = { width: 11, height: 21 };
+
+    it("gives the gap to the further edge, counting from the last cell", () => {
+        expect(Point2dUtils.getFarthestBound({ x: 2, y: 3 }, bounds)).toEqual({ x: 8, y: 17 });
+        expect(Point2dUtils.getFarthestBound({ x: 8, y: 17 }, bounds)).toEqual({ x: 8, y: 17 });
+    });
+
+    it("splits the difference at the middle", () => {
+        expect(Point2dUtils.getFarthestBound({ x: 5, y: 10 }, bounds)).toEqual({ x: 5, y: 10 });
+    });
+
+    it("reports 0 when the grid holds a single cell, which is both edges at once", () => {
+        expect(Point2dUtils.getFarthestBound({ x: 0, y: 0 }, { width: 1, height: 1 })).toEqual({ x: 0, y: 0 });
+    });
+});
+
+describe("Point2dUtils.getNearestBound", () => {
+    const bounds = { width: 11, height: 21 };
+
+    it("gives the gap to the nearer edge, counting from the last cell", () => {
+        expect(Point2dUtils.getNearestBound({ x: 2, y: 3 }, bounds)).toEqual({ x: 2, y: 3 });
+        expect(Point2dUtils.getNearestBound({ x: 8, y: 17 }, bounds)).toEqual({ x: 2, y: 3 });
+    });
+
+    it("splits the difference at the middle", () => {
+        expect(Point2dUtils.getNearestBound({ x: 5, y: 10 }, bounds)).toEqual({ x: 5, y: 10 });
+    });
+
+    it("reports 0 for a cell sitting on an edge", () => {
+        expect(Point2dUtils.getNearestBound({ x: 0, y: 20 }, bounds)).toEqual({ x: 0, y: 0 });
     });
 });
 
@@ -145,6 +211,6 @@ describe("Point2dUtils.offsetEdge", () => {
     it("keeps the segment the same length", () => {
         const { a, b } = Point2dUtils.offsetEdge({ x: 1, y: 1 }, { x: 4, y: 5 }, 3);
 
-        expect(Point2dUtils.getDistance(Point2d.sub(b, a))).toBeCloseTo(5, 10);
+        expect(Point2dUtils.getLength(Point2d.sub(b, a))).toBeCloseTo(5, 10);
     });
 });
