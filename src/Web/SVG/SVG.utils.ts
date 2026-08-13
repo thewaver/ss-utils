@@ -1,4 +1,4 @@
-import { Point2d } from "../../Abstracts/point.js";
+import { Point2d } from "../../Abstracts/point2d.js";
 import { PolygonUtils } from "../../Abstracts/polygon.js";
 import { Size2d } from "../../Abstracts/size.js";
 

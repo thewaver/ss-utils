@@ -2,6 +2,18 @@ import { describe, expect, it } from "vitest";
 
 import { MathUtils } from "../../src/Abstracts/math.js";
 
+describe("MathUtils.RADIANS_PER_DEGREE / DEGREES_PER_RADIAN", () => {
+    it("converts the landmark angles", () => {
+        expect(180 * MathUtils.RADIANS_PER_DEGREE).toBeCloseTo(Math.PI, 10);
+        expect(90 * MathUtils.RADIANS_PER_DEGREE).toBeCloseTo(Math.PI / 2, 10);
+        expect(Math.PI * MathUtils.DEGREES_PER_RADIAN).toBeCloseTo(180, 10);
+    });
+
+    it("undoes itself when applied both ways", () => {
+        expect(37 * MathUtils.RADIANS_PER_DEGREE * MathUtils.DEGREES_PER_RADIAN).toBeCloseTo(37, 10);
+    });
+});
+
 describe("MathUtils.isEven / isOdd", () => {
     it("classifies whole numbers", () => {
         expect(MathUtils.isEven(0)).toBe(true);
@@ -124,5 +136,85 @@ describe("MathUtils.unwarpAngle", () => {
             expect(result).toBeGreaterThanOrEqual(-180);
             expect(result).toBeLessThanOrEqual(180);
         }
+    });
+});
+
+describe("MathUtils.clamp", () => {
+    it("passes a value inside the range through untouched", () => {
+        expect(MathUtils.clamp(5, 0, 10)).toBe(5);
+    });
+
+    it("stops at whichever bound the value passed", () => {
+        expect(MathUtils.clamp(-1, 0, 10)).toBe(0);
+        expect(MathUtils.clamp(11, 0, 10)).toBe(10);
+    });
+
+    it("applies the upper bound last, so inverted bounds resolve to the upper one", () => {
+        expect(MathUtils.clamp(1, 5, 3)).toBe(3);
+    });
+
+    it("matches the hand-written form it replaces, which is the whole point", () => {
+        for (const [value, min, max] of [
+            [5, 0, 10],
+            [-1, 0, 10],
+            [11, 0, 10],
+            [1, 5, 3],
+            [0, 0, 0],
+        ]) {
+            expect(MathUtils.clamp(value, min, max), `${value} in ${min}..${max}`).toBe(
+                Math.min(Math.max(value, min), max),
+            );
+        }
+    });
+});
+
+describe("MathUtils.clamp01", () => {
+    it("is the 0..1 case of clamp", () => {
+        expect(MathUtils.clamp01(-0.5)).toBe(0);
+        expect(MathUtils.clamp01(0.25)).toBe(0.25);
+        expect(MathUtils.clamp01(2)).toBe(1);
+    });
+});
+
+describe("MathUtils.normalize", () => {
+    it("reports where a value sits between two others", () => {
+        expect(MathUtils.normalize(5, 0, 10)).toBe(0.5);
+        expect(MathUtils.normalize(0, 0, 10)).toBe(0);
+        expect(MathUtils.normalize(10, 0, 10)).toBe(1);
+    });
+
+    it("reads a descending range as readily as an ascending one", () => {
+        expect(MathUtils.normalize(75, 100, 50)).toBe(0.5);
+    });
+
+    it("reports overshoot rather than hiding it, which is what keeps it separate from clamping", () => {
+        expect(MathUtils.normalize(20, 0, 10)).toBe(2);
+        expect(MathUtils.normalize(-10, 0, 10)).toBe(-1);
+    });
+
+    it("answers a zero-width range with 0 rather than a division by zero", () => {
+        expect(MathUtils.normalize(5, 3, 3)).toBe(0);
+    });
+});
+
+describe("MathUtils.lerp", () => {
+    it("walks from one value to the other", () => {
+        expect(MathUtils.lerp(0, 10, 0.5)).toBe(5);
+        expect(MathUtils.lerp(10, 20, 0.25)).toBe(12.5);
+    });
+
+    it("lands exactly on both ends", () => {
+        expect(MathUtils.lerp(0.1, 0.3, 0)).toBe(0.1);
+        expect(MathUtils.lerp(0.1, 0.3, 1)).toBe(0.3);
+    });
+
+    it("extrapolates past the ends, which is what an overshooting curve needs", () => {
+        expect(MathUtils.lerp(0, 10, 1.5)).toBe(15);
+        expect(MathUtils.lerp(0, 10, -0.5)).toBe(-5);
+    });
+
+    it("undoes normalize, and is undone by it", () => {
+        expect(MathUtils.lerp(20, 80, MathUtils.normalize(50, 20, 80))).toBe(50);
+        expect(MathUtils.normalize(MathUtils.lerp(20, 80, 0.25), 20, 80)).toBe(0.25);
     });
 });

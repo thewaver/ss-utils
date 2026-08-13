@@ -1,4 +1,4 @@
-import { Point2d } from "../../Abstracts/point.js";
+import { Point2d } from "../../Abstracts/point2d.js";
 
 export namespace DOMUtils {
     /**

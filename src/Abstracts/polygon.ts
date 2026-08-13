@@ -1,4 +1,4 @@
-import { Point2d, Point2dUtils } from "./point.js";
+import { Point2d, Point2dUtils } from "./point2d.js";
 
 export namespace PolygonUtils {
     /**

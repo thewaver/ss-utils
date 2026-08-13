@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { Point2d } from "../../src/Abstracts/point.js";
+import { Point2d } from "../../src/Abstracts/point2d.js";
 import { PolygonUtils } from "../../src/Abstracts/polygon.js";
 
 const SQUARE: Point2d[] = [

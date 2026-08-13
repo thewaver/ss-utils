@@ -19,7 +19,7 @@ Everything below marked **FIXED** has been changed in the source and checked by 
 ### 1. FIXED — The package could not be imported outside a browser
 
 `JSXTextMetrics.utils.ts` created a canvas in a function that ran the moment the file loaded, so
-merely importing the package touched `document`. Since `src/index.ts` re-exports every module, *any*
+merely importing the package touched `document`. Since `src/index.ts` re-exports every module, _any_
 import triggered it:
 
 ```
@@ -58,13 +58,13 @@ IMPORT OK — 35 exports
 
 ### 2. FIXED — `BitwiseUtils.removeFlags` was back to front
 
-The test was inverted: when a flag *was* set it returned unchanged, and when it was *not* set it
+The test was inverted: when a flag _was_ set it returned unchanged, and when it was _not_ set it
 subtracted anyway.
 
-| Call | Expected | Was | Now |
-| --- | --- | --- | --- |
-| `removeFlags(0b111, [0b100])` | `3` | `7` | `3` |
-| `removeFlags(0b111, [0b1000])` | `7` | `-1` | `7` |
+| Call                           | Expected | Was  | Now |
+| ------------------------------ | -------- | ---- | --- |
+| `removeFlags(0b111, [0b100])`  | `3`      | `7`  | `3` |
+| `removeFlags(0b111, [0b1000])` | `7`      | `-1` | `7` |
 
 Now `result & ~flag`. `addFlags` was correct but arrived there via `+` and a guard; it is now
 `result | flag`, which is right by construction and copes with overlapping masks.
@@ -167,7 +167,7 @@ now go through a helper that refuses to add a break directly after another one.
 ### 13. FIXED — `isClosingPunctuation("")` was `true`
 
 The pattern used `*` instead of `+`, so an empty token counted as punctuation and changed how the
-*following* token merged. Now `+`.
+_following_ token merged. Now `+`.
 
 ---
 
@@ -179,7 +179,7 @@ Added: `exports` map, `sideEffects: false`, `prepublishOnly` (runs typecheck the
 `typecheck` script, `description`, `repository`, `bugs`, `homepage`, `keywords`, `author`. A `LICENSE`
 file now exists to back the `"license": "MIT"` claim.
 
-`sideEffects: false` is only truthful *because* of fix #1 — before that, importing genuinely did
+`sideEffects: false` is only truthful _because_ of fix #1 — before that, importing genuinely did
 touch the DOM.
 
 Still missing: a `README.md`.
@@ -213,17 +213,17 @@ Generating a shape is expensive and real workloads here run to roughly 40,000 di
 variations. A 512-entry cap evicts 98.7% of them, turning a cache into a treadmill that recomputes
 the same superellipse corners every frame. Measured on 40,000 variations, replayed:
 
-| Cache | Warm pass | Retained |
-| --- | --- | --- |
-| Unbounded (original, restored) | 49 ms | 40,000 / 40,000 |
-| Capped at 512 (briefly introduced) | ~1,600 ms | 512 / 40,000 |
+| Cache                              | Warm pass | Retained        |
+| ---------------------------------- | --------- | --------------- |
+| Unbounded (original, restored)     | 49 ms     | 40,000 / 40,000 |
+| Capped at 512 (briefly introduced) | ~1,600 ms | 512 / 40,000    |
 
 Unbounded growth is the correct trade for this workload and was a deliberate design decision. The
 cache is back to never evicting.
 
 What survives from this item, all uncontested:
 
-- `clearPathCache()` is added, so the memory *can* be released at a natural boundary. With no
+- `clearPathCache()` is added, so the memory _can_ be released at a natural boundary. With no
   automatic eviction this is the only way to reclaim it.
 - The map is private. Hiding it was taste rather than a defect, but confirmed as fine.
 - The key is computed after the "fewer than three corners" exit instead of before it, and every
@@ -235,11 +235,11 @@ call.** Do not change eviction behaviour without measurements.
 
 ### 17. FIXED — four overlapping geometry APIs
 
-| Duplicate | Resolution |
-| --- | --- |
-| `SVGUtils.pointArrayToString` / `PolygonUtils.pointsToSVGString` | Former now delegates to the latter |
-| `Point2dUtils.intersectEdges` / `PolygonUtils.getLineIntersection` | One implementation, see #8 |
-| `getPerpendicular`+`getNormal` / `PolygonUtils.getEdgeNormal` | Left as-is; different enough in use |
+| Duplicate                                                             | Resolution                                 |
+| --------------------------------------------------------------------- | ------------------------------------------ |
+| `SVGUtils.pointArrayToString` / `PolygonUtils.pointsToSVGString`      | Former now delegates to the latter         |
+| `Point2dUtils.intersectEdges` / `PolygonUtils.getLineIntersection`    | One implementation, see #8                 |
+| `getPerpendicular`+`getNormal` / `PolygonUtils.getEdgeNormal`         | Left as-is; different enough in use        |
 | `PolygonUtils.insetPolygon` / offset logic in `ShapeUtils.setupPaths` | Left as-is; genuinely different algorithms |
 
 Added `Point2dUtils.degreesToRadians` to sit alongside the existing `radiansToDegrees`. The
@@ -315,13 +315,13 @@ Everything else is either a pure bug fix or additive.
 
 **Renames — old names removed, no aliases:**
 
-| Was | Now |
-| --- | --- |
-| `Point2dUtils.getPrependicular` | `Point2dUtils.getPerpendicular` |
-| `Point2dUtils.intersectEdges` | `Point2dUtils.intersectLines` |
-| `CSSUtils.isCssKeyEexcludedForDisplayInline` | `CSSUtils.isCssKeyExcludedForDisplayInline` |
-| `IOUtils.download` | `IOUtils.downloadJson` |
-| `ShapeUtils.PATH_CACHE` | private; `ShapeUtils.clearPathCache()` added |
+| Was                                          | Now                                          |
+| -------------------------------------------- | -------------------------------------------- |
+| `Point2dUtils.getPrependicular`              | `Point2dUtils.getPerpendicular`              |
+| `Point2dUtils.intersectEdges`                | `Point2dUtils.intersectLines`                |
+| `CSSUtils.isCssKeyEexcludedForDisplayInline` | `CSSUtils.isCssKeyExcludedForDisplayInline`  |
+| `IOUtils.download`                           | `IOUtils.downloadJson`                       |
+| `ShapeUtils.PATH_CACHE`                      | private; `ShapeUtils.clearPathCache()` added |
 
 **Changed return values:**
 

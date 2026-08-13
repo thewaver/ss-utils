@@ -1,9 +1,9 @@
+import { MathUtils } from "./math.js";
 import { Size2d } from "./size.js";
 import { Vec2d, Vec2dString } from "./vec2d.js";
 
 const K1 = "x";
 const K2 = "y";
-const PIDegrees = Math.PI / 180;
 
 /** A position (or direction) on a 2D plane. */
 export type Point2d = Vec2d<typeof K1, typeof K2>;
@@ -38,10 +38,10 @@ export namespace Point2dString {
 
 export namespace Point2dUtils {
     /** Converts radians to degrees. */
-    export const radiansToDegrees = (radians: number): number => radians * (180 / Math.PI);
+    export const radiansToDegrees = (radians: number): number => radians * MathUtils.DEGREES_PER_RADIAN;
 
     /** Converts degrees to radians. */
-    export const degreesToRadians = (degrees: number): number => degrees * PIDegrees;
+    export const degreesToRadians = (degrees: number): number => degrees * MathUtils.RADIANS_PER_DEGREE;
 
     /**
      * Shrinks a direction down to length 1, keeping the way it points.
@@ -134,8 +134,8 @@ export namespace Point2dUtils {
      * @param angle Which way to face, in degrees. See {@link getAngle} for the convention.
      */
     export const polarToCartesian = (radius: number, angle: number): Point2d => ({
-        x: radius * Math.cos(angle * PIDegrees),
-        y: radius * Math.sin(angle * PIDegrees),
+        x: radius * Math.cos(angle * MathUtils.RADIANS_PER_DEGREE),
+        y: radius * Math.sin(angle * MathUtils.RADIANS_PER_DEGREE),
     });
 
     /**

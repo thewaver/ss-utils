@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
 
-import { Point2d } from "../../src/Abstracts/point.js";
+import { Point2d } from "../../src/Abstracts/point2d.js";
 import { ShapeConst, ShapeUtils } from "../../src/Abstracts/shape.js";
 
 const SQUARE: Point2d[] = [

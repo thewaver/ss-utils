@@ -1,4 +1,4 @@
-import { Point2d } from "./point.js";
+import { Point2d } from "./point2d.js";
 import { Size2d } from "./size.js";
 import { Vec4d, Vec4dString } from "./vec4d.js";
 

@@ -1,7 +1,7 @@
 import type * as CSS from "csstype";
 
 import { ObjectUtils } from "./object.js";
-import { Point2d } from "./point.js";
+import { Point2d } from "./point2d.js";
 import { Size2d } from "./size.js";
 
 export namespace ShapeConst {

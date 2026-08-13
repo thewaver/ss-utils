@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { Point2d, Point2dString, Point2dUtils } from "../../src/Abstracts/point.js";
+import { Point2d, Point2dString, Point2dUtils } from "../../src/Abstracts/point2d.js";
 
 describe("Point2d", () => {
     it("re-exports the shared two-number arithmetic under x/y", () => {
