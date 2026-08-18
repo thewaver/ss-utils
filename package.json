@@ -1,7 +1,7 @@
 {
     "name": "@thewaver/ss-utils",
     "type": "module",
-    "version": "0.0.21",
+    "version": "0.0.22",
     "description": "Geometry, CSS, SVG and DOM helpers for building shaped UI.",
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",
@@ -54,7 +54,7 @@
         "prettier": "^3.9.6",
         "tsup": "^8.5.1",
         "typescript": "^6.0.3",
-        "vitest": "^4.1.10"
+        "vitest": "^4.1.11"
     },
     "prettier": {
         "tabWidth": 4,
@@ -71,5 +71,8 @@
         ],
         "importOrderSeparation": true,
         "importOrderSortSpecifiers": true
+    },
+    "allowScripts": {
+        "esbuild@0.27.2": true
     }
 }

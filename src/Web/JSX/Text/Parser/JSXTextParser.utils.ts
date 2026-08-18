@@ -128,9 +128,12 @@ export namespace JSXTextParser {
 
         const tokens: ElementSegment[] = [];
 
-        // Two blocks in a row would otherwise close one and open the next, producing a
-        // stray blank line between them.
-        const pushLineBreak = () => {
+        // Structural breaks only, which is what this collapse was written for: two blocks in
+        // a row would otherwise close one and open the next, producing a stray blank line
+        // between them. Breaks the author wrote — a literal newline, or a <br> — are content
+        // and always push, or "a\n\nb" silently loses its blank line. Do not route the
+        // explicit sites through here.
+        const pushStructuralLineBreak = () => {
             if (tokens.at(-1)?.type === "linebreak") return;
 
             tokens.push(lineBreakToken);
@@ -153,7 +156,7 @@ export namespace JSXTextParser {
                     const parsedPart = StringUtils.replaceTabs(part);
 
                     if (StringUtils.isLineBreak(parsedPart)) {
-                        pushLineBreak();
+                        tokens.push(lineBreakToken);
                     } else {
                         tokens.push({
                             type: "text",
@@ -173,7 +176,7 @@ export namespace JSXTextParser {
             const element = node as HTMLElement;
 
             if (element.nodeName === "BR") {
-                pushLineBreak();
+                tokens.push(lineBreakToken);
 
                 return;
             }
@@ -205,7 +208,7 @@ export namespace JSXTextParser {
                 }
 
                 if (isBlockLike && tokens.length > 0) {
-                    pushLineBreak();
+                    pushStructuralLineBreak();
                 }
 
                 for (const child of Array.from(element.childNodes)) {
@@ -213,7 +216,7 @@ export namespace JSXTextParser {
                 }
 
                 if (isBlockLike && tokens.length > 0) {
-                    pushLineBreak();
+                    pushStructuralLineBreak();
                 }
             }
         };
